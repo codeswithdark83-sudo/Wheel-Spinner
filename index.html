@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Spin Wheel 3D - Random Name Picker with Smoky Effects</title>
+  <meta name="description" content="A 3D Glassmorphism spin name wheel with atmospheric smoky effects, equal random chances, and physics flapper.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%236366F1%22/><path d=%22M50 5 L50 50 L85 75 Z%22 fill=%22%23EC4899%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23FFFFFF%22/></svg>">
+</head>
+<body>
+
+  <!-- Atmospheric Smoky Effects Background -->
+  <canvas id="smoke-canvas"></canvas>
+
+  <!-- Ambient Glow Reflections -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- Confetti Celebration Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Master Application Container -->
+  <div class="app-container">
+
+    <!-- Top Glassmorphism Navigation Bar -->
+    <header class="header-nav">
+      <div class="brand-wrapper">
+        <div class="brand-icon-3d">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+            <path d="M2 12h20"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">SPIN WHEEL <span style="font-weight: 300;">3D</span></h1>
+        </div>
+        <span class="brand-badge">EQUAL CHANCE</span>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Sound Mute/Unmute Toggle -->
+        <button id="btn-sound" class="glass-btn-icon" title="Toggle Sound (Mute/Unmute)" aria-label="Toggle Sound">
+          <svg id="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="icon-sound-off" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Fullscreen Toggle -->
+        <button id="btn-fullscreen" class="glass-btn-icon" title="Toggle Fullscreen" aria-label="Fullscreen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Stage -->
+    <main class="main-stage">
+
+      <!-- Left Panel: Names Management -->
+      <section class="glass-panel names-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Names List
+          </h2>
+          <span id="names-count-badge" class="panel-badge">0 / 0</span>
+        </div>
+
+        <!-- Add Single Name Input -->
+        <form id="form-add-name" class="input-group">
+          <input type="text" id="input-new-name" class="glass-input" placeholder="Type a name..." autocomplete="off" maxlength="32">
+          <button type="submit" class="glass-btn-primary" id="btn-add-name">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add
+          </button>
+        </form>
+
+        <!-- Quick Actions Toolbar -->
+        <div class="toolbar-actions">
+          <button type="button" class="toolbar-btn" id="btn-open-bulk" title="Paste multiple names">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            Bulk Add
+          </button>
+
+          <button type="button" class="toolbar-btn" id="btn-shuffle-names" title="Shuffle names order">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+            Shuffle
+          </button>
+
+          <button type="button" class="toolbar-btn" id="btn-sort-names" title="Sort A-Z">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 5h10"></path>
+              <path d="M11 9h7"></path>
+              <path d="M11 13h4"></path>
+              <path d="M3 17l3 3 3-3"></path>
+              <path d="M6 18V4"></path>
+            </svg>
+            Sort
+          </button>
+
+          <button type="button" class="toolbar-btn" id="btn-clear-all" title="Clear all names">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Clear
+          </button>
+        </div>
+
+        <!-- Scrollable List of Names -->
+        <div id="names-list" class="names-list-container">
+          <!-- Dynamically populated name cards -->
+        </div>
+      </section>
+
+      <!-- Center Panel: 3D Wheel Arena -->
+      <section class="glass-panel wheel-arena-panel">
+        <div class="wheel-perspective-stage" id="wheel-perspective-stage">
+          <canvas id="wheel-canvas"></canvas>
+          <div class="wheel-floor-shadow"></div>
+        </div>
+
+        <!-- Primary 3D Spin Action Trigger -->
+        <div class="spin-action-bar">
+          <button id="btn-spin-wheel" class="btn-spin-3d">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            SPIN THE WHEEL
+          </button>
+          <div class="spin-hint">
+            <span>Press</span> <kbd>Space</kbd> <span>or Click center to spin</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel: History & Presets / Settings -->
+      <section class="glass-panel right-panel">
+        <!-- Navigation Tabs -->
+        <div class="tabs-container">
+          <button class="tab-btn active" data-tab="tab-history">History</button>
+          <button class="tab-btn" data-tab="tab-presets">Presets</button>
+          <button class="tab-btn" data-tab="tab-settings">Effects</button>
+        </div>
+
+        <!-- Tab 1: Winner History -->
+        <div id="tab-history" class="tab-content active">
+          <div class="panel-header" style="margin-bottom: 0.75rem;">
+            <span style="font-size: 0.82rem; color: var(--text-muted);">PULLED WINNERS</span>
+            <button id="btn-clear-history" class="toolbar-btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Clear</button>
+          </div>
+          <div id="history-list" class="history-list-container">
+            <div class="empty-state">No spins yet. Spin the wheel to pick your first lucky winner!</div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Quick Presets -->
+        <div id="tab-presets" class="tab-content">
+          <span class="settings-label">Quick Load Lists</span>
+          <div class="presets-grid">
+            <div class="preset-chip" data-preset="numbers">
+              <div>
+                <div class="preset-chip-title">🎲 Numbers 1 to 20</div>
+                <div class="preset-chip-count">20 items</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+
+            <div class="preset-chip" data-preset="team">
+              <div>
+                <div class="preset-chip-title">👥 Team Standup</div>
+                <div class="preset-chip-count">8 members</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+
+            <div class="preset-chip" data-preset="food">
+              <div>
+                <div class="preset-chip-title">🍕 Lunch & Dinner</div>
+                <div class="preset-chip-count">8 cuisines</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+
+            <div class="preset-chip" data-preset="decisions">
+              <div>
+                <div class="preset-chip-title">🔮 Decisions (Yes/No)</div>
+                <div class="preset-chip-count">6 outcomes</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+
+            <div class="preset-chip" data-preset="giveaway">
+              <div>
+                <div class="preset-chip-title">🎁 Lucky Giveaway</div>
+                <div class="preset-chip-count">6 prizes</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Smoky Effects & Wheel Customization -->
+        <div id="tab-settings" class="tab-content">
+          <div class="settings-group">
+            <span class="settings-label">Smoky Background Palette</span>
+            <div class="theme-options-grid">
+              <div class="theme-card active" data-theme="violet">
+                <div class="theme-swatch violet"></div>
+                <span>Cosmic Mist</span>
+              </div>
+              <div class="theme-card" data-theme="emerald">
+                <div class="theme-swatch emerald"></div>
+                <span>Emerald Aurora</span>
+              </div>
+              <div class="theme-card" data-theme="ember">
+                <div class="theme-swatch ember"></div>
+                <span>Solar Ember</span>
+              </div>
+              <div class="theme-card" data-theme="midnight">
+                <div class="theme-swatch midnight"></div>
+                <span>Midnight Frost</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <span class="settings-label">Spin Duration</span>
+            <div class="duration-pills">
+              <div class="duration-pill" data-duration="3200">Fast (3s)</div>
+              <div class="duration-pill active" data-duration="5500">Normal (5.5s)</div>
+              <div class="duration-pill" data-duration="8500">Suspense (8.5s)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       Modals
+       ========================================================================== -->
+
+  <!-- Bulk Add Names Modal -->
+  <div id="modal-bulk" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Bulk Add Names</h3>
+        <button class="modal-close" id="btn-close-bulk" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+        Paste or type names separated by newlines, commas, or semicolons:
+      </p>
+      <textarea id="textarea-bulk-names" class="modal-textarea" placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Edward..."></textarea>
+      <div class="modal-actions">
+        <button type="button" class="glass-btn-secondary" id="btn-cancel-bulk">Cancel</button>
+        <button type="button" class="glass-btn-primary" id="btn-submit-bulk">Import Names</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Winner Celebration 3D Glass Modal -->
+  <div id="modal-winner" class="modal-overlay">
+    <div class="modal-card winner-card">
+      <div class="winner-trophy-3d">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+        </svg>
+      </div>
+      <div class="winner-subtitle">WE HAVE A WINNER!</div>
+      <div id="winner-name-text" class="winner-name-display">Winner Name</div>
+
+      <div class="winner-action-buttons">
+        <button id="btn-eliminate-winner" class="btn-winner-secondary">
+          Remove Name from Wheel
+        </button>
+        <button id="btn-keep-winner" class="btn-winner-primary">
+          Keep & Spin Again
+        </button>
+        <button id="btn-close-winner" class="btn-winner-close">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="smoke.js"></script>
+  <script src="audio.js"></script>
+  <script src="confetti.js"></script>
+  <script src="wheel.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
